@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Scanner</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--info:#5b8cff;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1100px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7);display:grid;grid-template-columns:1fr 340px}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}.term{order:2;border-left:none;border-top:1px solid var(--line);min-height:280px}}
+  .main{padding:40px 44px;display:flex;flex-direction:column;gap:22px;min-height:560px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .eyebrow.danger{color:var(--danger)}.eyebrow.danger::before{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+  h1{font-family:var(--font-display);font-size:24px;font-weight:600;line-height:1.25;margin-top:4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:400px}
+  .scan-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .meta-chip{font-family:var(--font-mono);font-size:11px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);padding:6px 12px;border-radius:6px}
+  .meta-chip b{color:var(--text);font-weight:600}
+  .module-progress{display:flex;flex-direction:column;gap:18px;margin-top:8px}
+  .prog-row{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;transition:border-color .2s ease}
+  .prog-row.active{border-color:var(--accent)}.prog-row.done{opacity:.6}.prog-row.fail{border-color:var(--danger)}.prog-row.warn{border-color:var(--warn)}
+  .prog-ring{width:40px;height:40px;flex-shrink:0;position:relative}.prog-ring svg{width:100%;height:100%;transform:rotate(-90deg)}.prog-ring .ring-bg{stroke:var(--line)}.prog-ring .ring-fg{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:94;stroke-dashoffset:94;transition:stroke-dashoffset .4s ease}.prog-ring .ring-fg.danger{stroke:var(--danger)}.prog-ring .ring-fg.warn{stroke:var(--warn)}
+  .prog-info{flex:1}.prog-title{font-family:var(--font-display);font-size:14px;font-weight:600;margin-bottom:2px}.prog-desc{font-size:12px;color:var(--muted)}
+  .prog-status{font-family:var(--font-mono);font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em}.prog-status.done{color:var(--accent)}.prog-status.fail{color:var(--danger)}.prog-status.warn{color:var(--warn)}
+  .action-bar{display:flex;gap:12px;margin-top:auto;padding-top:12px}
+  button.primary{flex:1;padding:15px 20px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+  button.ghost{padding:15px 20px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+  .term{background:#0a0c11;border-left:1px solid var(--line);padding:26px 24px;font-family:var(--font-mono);font-size:12px;display:flex;flex-direction:column;position:relative;min-height:520px}
+  .term-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;color:var(--muted-2);letter-spacing:.1em;font-size:10.5px;text-transform:uppercase}
+  .term-dots{display:flex;gap:6px}.term-dots span{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .term-log{flex:1;display:flex;flex-direction:column;gap:9px;overflow:hidden}
+  .term-log .line{color:var(--muted-2);opacity:0;display:flex;gap:8px}
+  .term-log .line.show{animation:appear .3s ease forwards}
+  @keyframes appear{to{opacity:1}}
+  .term-log .line .tag{color:var(--muted);flex-shrink:0}
+  .term-log .line.ok .tag{color:var(--accent)}.term-log .line.warn .tag{color:var(--warn)}.term-log .line.err .tag{color:var(--danger)}.term-log .line.info .tag{color:var(--info)}
+  .cursor{display:inline-block;width:7px;height:13px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:middle;margin-left:2px}
+  @keyframes blink{50%{opacity:0}}
+  .term-footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted-2);font-size:10.5px;display:flex;justify-content:space-between;letter-spacing:.04em}
+  .scanline{position:absolute;left:0;right:0;height:90px;background:linear-gradient(180deg,transparent,rgba(53,240,201,.06),transparent);top:-90px;pointer-events:none}
+  .scanline.run{animation:sweep 2.6s ease forwards}
+  @keyframes sweep{to{top:100%}}
+  .agent-notice{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:6px}
+  .agent-notice-title{font-size:13px;font-weight:600;margin-bottom:4px}
+  .agent-notice-desc{font-size:12px;color:var(--muted);line-height:1.5}
+  .agent-notice code{font-family:var(--font-mono);font-size:11px;background:var(--panel);padding:2px 6px;border-radius:4px;color:var(--accent)}
+</style>
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Scanner</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="dashboard.html" class="nav-pill">Dashboard</a>
+        <a href="scan.html" class="nav-pill active">Scanner</a>
+        <a href="history.html" class="nav-pill">History</a>
+        <a href="config.html" class="nav-pill">Config</a>
+        <a href="index.html" class="nav-pill" onclick="localStorage.clear()">Logout</a>
+      </div>
+
+      <div class="eyebrow" id="scanEyebrow">Initializing</div>
+      <h1 id="scanTitle">Preparing scan</h1>
+      <p class="sub" id="scanSub">Warming up the 3x detection engine. Configure modules and load signature databases.</p>
+
+      <div class="agent-notice" id="agentNotice">
+        <div class="agent-notice-title">📥 Desktop Agent Required</div>
+        <div class="agent-notice-desc">For real forensic collection, run the 3x Agent on the target machine:<br><code>powershell -ExecutionPolicy Bypass -File .\3x-agent.ps1 -ApiUrl <span id="apiUrl">http://localhost:3000</span></code></div>
+      </div>
+
+      <div class="scan-meta">
+        <div class="meta-chip">Mode: <b id="metaMode">Full Sweep</b></div>
+        <div class="meta-chip">Modules: <b id="metaCount">8</b></div>
+        <div class="meta-chip">ETA: <b id="metaEta">~18s</b></div>
+      </div>
+
+      <div class="module-progress" id="moduleProgress"></div>
+
+      <div class="action-bar">
+        <button class="primary" id="btnStart" onclick="startScan()">Start Scan</button>
+        <button class="ghost" onclick="location.href='dashboard.html'">Back</button>
+        <button class="ghost" onclick="location.href='config.html'">Configure</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <div class="scanline" id="scanline"></div>
+      <div class="term-head">
+        <span id="logTitle">scan.log</span>
+        <div class="term-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="term-log" id="termLog">
+        <div class="line idle show"><span class="tag">$</span> 3x scanner idle — awaiting trigger<span class="cursor"></span></div>
+      </div>
+      <div class="term-footer">
+        <span>local · read-only</span>
+        <span id="clock">00:00:00</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('3x_token');
+  if (!token) location.href = 'index.html';
+
+  document.getElementById('apiUrl').textContent = location.origin;
+
+  const socket = io();
+  socket.emit('authenticate', token);
+
+  const params = new URLSearchParams(location.search);
+  const mode = params.get('m') || 'full';
+
+  const MODULES = {
+    process: { title: 'Process Scan', desc: 'Enumerating processes and comparing hashes', time: 1800, result: 'clean' },
+    file: { title: 'File System Trace', desc: 'Parsing USN journal, prefetch, and temp directories', time: 2400, result: 'warn' },
+    registry: { title: 'Registry Audit', desc: 'Scanning HKLM/HKCU for persistence and spoofed keys', time: 1600, result: 'warn' },
+    network: { title: 'Network / DNS', desc: 'Inspecting DNS cache and active connections', time: 1400, result: 'clean' },
+    discord: { title: 'Discord Intel', desc: 'Cross-referencing roles against cheat server DB', time: 2000, result: 'warn' },
+    memory: { title: 'Memory Traces', desc: 'Inspecting LSASS handles and injected modules', time: 1700, result: 'clean' },
+    etw: { title: 'ETW / WMI Audit', desc: 'Detecting provider tampering and subscription gaps', time: 1500, result: 'warn' },
+    explorer: { title: 'Explorer / LSASS Forensics', desc: 'Analyzing DPS, PCA, explorer and lsass artifacts', time: 1900, result: 'warn' }
+  };
+
+  const activeModules = mode === 'full'
+    ? ['process','file','registry','network','discord','memory','etw','explorer']
+    : [mode];
+
+  document.getElementById('metaMode').textContent = mode === 'full' ? 'Full Sweep' : MODULES[mode].title;
+  document.getElementById('metaCount').textContent = activeModules.length;
+  const totalTime = activeModules.reduce((a,m) => a + MODULES[m].time, 0);
+  document.getElementById('metaEta').textContent = '~' + Math.ceil(totalTime/1000) + 's';
+
+  const progressContainer = document.getElementById('moduleProgress');
+  activeModules.forEach(key => {
+    const m = MODULES[key];
+    const div = document.createElement('div');
+    div.className = 'prog-row';
+    div.id = 'prog-' + key;
+    div.innerHTML = `
+      <div class="prog-ring">
+        <svg viewBox="0 0 40 40">
+          <circle class="ring-bg" cx="20" cy="20" r="15" fill="none" stroke-width="3"/>
+          <circle class="ring-fg" id="ring-${key}" cx="20" cy="20" r="15" fill="none" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title">${m.title}</div>
+        <div class="prog-desc">${m.desc}</div>
+      </div>
+      <div class="prog-status" id="status-${key}">Pending</div>
+    `;
+    progressContainer.appendChild(div);
+  });
+
+  function tick(){
+    const d = new Date();
+    document.getElementById('clock').textContent = d.toTimeString().slice(0,8);
+  }
+  tick(); setInterval(tick, 1000);
+
+  const termLog = document.getElementById('termLog');
+  const scanline = document.getElementById('scanline');
+
+  function resetTerminal(){ termLog.innerHTML = ''; }
+
+  function addLine(tag, text, type, delay){
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'line' + (type ? ' ' + type : '');
+      el.innerHTML = `<span class="tag">${tag}</span> ${text}`;
+      termLog.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      termLog.scrollTop = termLog.scrollHeight;
+    }, delay);
+  }
+
+  function setRing(key, pct, type){
+    const ring = document.getElementById('ring-' + key);
+    const offset = 94 - (94 * pct / 100);
+    ring.style.strokeDashoffset = offset;
+    if(type === 'danger') ring.classList.add('danger');
+    if(type === 'warn') ring.classList.add('warn');
+  }
+
+  function setRowStatus(key, status, type){
+    const row = document.getElementById('prog-' + key);
+    const st = document.getElementById('status-' + key);
+    row.classList.remove('active','done','fail','warn');
+    row.classList.add(status);
+    if(type) row.classList.add(type);
+    st.textContent = status === 'active' ? 'Scanning...' : status === 'done' ? 'Complete' : 'Pending';
+    st.className = 'prog-status ' + (type || '');
+  }
+
+  const DEMO_LOGS = {
+    process: [
+      {tag:'PROC',text:'enumerating 147 active processes'},
+      {tag:'PROC',text:'hashing chrome.exe → a3f7c2d8...'},
+      {tag:'PROC',text:'hashing discord.exe → 8e2b91f4...'},
+      {tag:'PROC',text:'hashing FiveM.exe → 4d1e77a9...'},
+      {tag:'PROC',text:'signature check: 142 passed, 5 unsigned'},
+      {tag:'PROC',text:'parent chain analysis: 147 validated'},
+      {tag:'OK',text:'no anomalies detected',ok:true}
+    ],
+    file: [
+      {tag:'FILE',text:'parsing USN journal (2.4MB, 18,421 records)'},
+      {tag:'FILE',text:'found 12 deletion events in last 24h'},
+      {tag:'WARN',text:'staggered delete pattern detected (3 files, 847ms gaps)',warn:true},
+      {tag:'FILE',text:'prefetch gap: 3 entries missing (CheatEngine.exe, x64dbg.exe)'},
+      {tag:'WARN',text:'timestamp fix detected: 2 files modified post-deletion',warn:true},
+      {tag:'FILE',text:'temp directory: 44 files, 2 hidden'},
+      {tag:'WARN',text:'suspicious trace activity — NAPSE evasion pattern',warn:true}
+    ],
+    registry: [
+      {tag:'REG',text:'scanning HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'},
+      {tag:'REG',text:'12 entries found, 2 unsigned executables'},
+      {tag:'WARN',text:'HKCU shell override detected: Explorer\Advanced\Hidden = 2',warn:true},
+      {tag:'REG',text:'CLSID mismatch: {a1b2c3d4-e5f6...} → unknown provider'},
+      {tag:'WARN',text:'persistence artifact: Run key points to temp\unknown.exe',warn:true},
+      {tag:'REG',text:'driver keys: 23 validated, 0 spoofed'},
+      {tag:'OK',text:'audit complete',ok:true}
+    ],
+    network: [
+      {tag:'NET',text:'DNS cache: 34 entries resolved'},
+      {tag:'NET',text:'active TCP connections: 18'},
+      {tag:'NET',text:'checking 4,200 known C2 indicators'},
+      {tag:'OK',text:'no malicious endpoints found',ok:true},
+      {tag:'NET',text:'TLS fingerprint: standard Chrome 126'},
+      {tag:'NET',text:'UDP sockets: 6, all standard'},
+      {tag:'OK',text:'network clean',ok:true}
+    ],
+    discord: [
+      {tag:'DSC',text:'fetching user guild memberships'},
+      {tag:'DSC',text:'42 guilds found across 3 accounts'},
+      {tag:'DSC',text:'cross-referencing 42 guilds against known cheat DB (1,847 entries)'},
+      {tag:'WARN',text:'"cheats" role detected in guild 8842938475621...',warn:true},
+      {tag:'DSC',text:'additional suspicious roles: "customer", "reseller"'},
+      {tag:'WARN',text:'risk score elevated +35 for Discord intel',warn:true},
+      {tag:'WARN',text:'suspicious role membership confirmed',warn:true}
+    ],
+    memory: [
+      {tag:'MEM',text:'enumerating loaded modules across 147 processes'},
+      {tag:'MEM',text:'LSASS handle count: 23 (normal range)'},
+      {tag:'MEM',text:'checking for hollowed processes (PE header validation)'},
+      {tag:'OK',text:'no hollowing detected',ok:true},
+      {tag:'MEM',text:'memory permissions scan: RWX regions = 0'},
+      {tag:'MEM',text:'injected DLL check: 0 anomalies'},
+      {tag:'OK',text:'memory audit passed',ok:true}
+    ],
+    etw: [
+      {tag:'ETW',text:'enumerating active ETW providers'},
+      {tag:'ETW',text:'Microsoft-Windows-Kernel-Process: active'},
+      {tag:'WARN',text:'Microsoft-Windows-DNS-Client: provider disabled',warn:true},
+      {tag:'ETW',text:'WMI repository: 1,247 classes loaded'},
+      {tag:'WARN',text:'WMI subscription gap: 3 active, 1 stale (Ocean bypass pattern)',warn:true},
+      {tag:'ETW',text:'Event 104 check: 0 entries (suspicious — should have logs)'},
+      {tag:'WARN',text:'selective cleanup detected — ETW tampering likely',warn:true}
+    ],
+    explorer: [
+      {tag:'EXP',text:'explorer.exe PID 4824 — 23 threads, 847 handles'},
+      {tag:'EXP',text:'lsass.exe PID 712 — 18 threads, 312 handles'},
+      {tag:'EXP',text:'DPS service: 113 categories loaded'},
+      {tag:'WARN',text:'PCA service: 117 categories, 4 gaps in recent history',warn:true},
+      {tag:'EXP',text:'explorer restart check: last boot ≠ explorer start'},
+      {tag:'WARN',text:'explorer.exe start time anomaly — possible restart bypass',warn:true},
+      {tag:'WARN',text:'DPS/PCA merged: 4 forensic gaps detected',warn:true}
+    ]
+  };
+
+  async function startScan(){
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('scanEyebrow').textContent = 'Scanning';
+    document.getElementById('scanTitle').textContent = 'Running detection modules';
+    document.getElementById('scanSub').textContent = 'Do not close this tab. Forensic analysis is in progress.';
+    document.getElementById('agentNotice').style.display = 'none';
+    resetTerminal();
+    scanline.classList.remove('run'); void scanline.offsetWidth; scanline.classList.add('run');
+
+    // Start scan on server
+    try {
+      await fetch('/api/scan/start', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode, modules: activeModules })
+      });
+    } catch(e) {}
+
+    let totalRisk = 0;
+    const findings = [];
+    const allLogs = [];
+
+    for(let i = 0; i < activeModules.length; i++){
+      const key = activeModules[i];
+      const m = MODULES[key];
+      const logs = DEMO_LOGS[key] || [];
+      setRowStatus(key, 'active');
+
+      logs.forEach((l, idx) => {
+        const type = l.warn ? 'warn' : l.ok ? 'ok' : null;
+        addLine(l.tag, l.text, type, idx * 280);
+        allLogs.push(l);
+      });
+
+      // Emit progress
+      socket.emit('scan_progress', { module: key, status: 'running', pct: 0 });
+
+      const steps = 20;
+      for(let s = 0; s <= steps; s++){
+        await new Promise(r => setTimeout(r, m.time / steps));
+        setRing(key, (s / steps) * 100);
+        socket.emit('scan_progress', { module: key, status: 'running', pct: Math.round((s/steps)*100) });
+      }
+
+      setRowStatus(key, 'done', m.result === 'warn' ? 'warn' : m.result === 'danger' ? 'danger' : null);
+      if(m.result === 'warn'){ totalRisk += 12; findings.push({ module: m.title, severity: 'warn', description: 'Behavioral anomaly detected', confidence: 85, source: key }); }
+      if(m.result === 'danger'){ totalRisk += 28; findings.push({ module: m.title, severity: 'danger', description: 'Critical artifact detected', confidence: 95, source: key }); }
+
+      socket.emit('scan_progress', { module: key, status: 'complete', pct: 100 });
+    }
+
+    setTimeout(() => {
+      addLine('DONE', 'all modules finished — compiling report', 'ok', 200);
+
+      // Submit report to server
+      fetch('/api/scan/report', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scanId: 0, riskScore: totalRisk, findings, rawData: { logs: allLogs, modules: activeModules } })
+      }).catch(() => {});
+
+      setTimeout(() => {
+        const f = findings.length ? findings.map(x => x.module).join(',') : 'none';
+        location.href = 'report.html?risk=' + totalRisk + '&find=' + encodeURIComponent(f) + '&mode=' + mode;
+      }, 600);
+    }, 400);
+  }
+</script>
+</body>
+</html>

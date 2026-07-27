@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Authentication</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:920px;display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7)}
+  @media(max-width:760px){.stage{grid-template-columns:1fr}.term{order:2;min-height:220px}.main{order:1}}
+  .main{padding:48px 44px;display:flex;flex-direction:column;justify-content:center;position:relative;min-height:520px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:40px}
+  .brand-mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:14px;height:14px}
+  .brand-name{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-family:var(--font-display);font-size:30px;font-weight:600;line-height:1.2;margin-bottom:12px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14.5px;line-height:1.6;margin-bottom:34px;max-width:360px}
+  .view{display:none}.view.active{display:block;animation:rise .45s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .discord-btn{width:100%;padding:15px 20px;background:#5865F2;color:#fff;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14.5px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;display:flex;align-items:center;justify-content:center;gap:10px}
+  .discord-btn:hover{box-shadow:0 10px 30px -10px rgba(88,101,242,.5);transform:translateY(-1px)}
+  .discord-btn svg{width:20px;height:20px}
+  .secondary-links{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+  .secondary-link{font-family:var(--font-mono);font-size:11px;color:var(--muted-2);text-decoration:none;padding:8px 14px;border:1px solid var(--line);border-radius:6px;transition:all .15s ease}
+  .secondary-link:hover{border-color:var(--muted);color:var(--text)}
+  .footnote{margin-top:20px;font-size:12px;color:var(--muted-2);line-height:1.6}
+  .error-box{background:var(--danger-dim);border:1px solid rgba(255,82,102,.3);border-radius:10px;padding:14px 18px;margin-bottom:24px;color:var(--danger);font-size:13px;display:none}
+  .error-box.show{display:block;animation:rise .3s ease}
+  .term{background:#0a0c11;border-left:1px solid var(--line);padding:26px 24px;font-family:var(--font-mono);font-size:12px;display:flex;flex-direction:column;position:relative}
+  .term-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;color:var(--muted-2);letter-spacing:.1em;font-size:10.5px;text-transform:uppercase}
+  .term-dots{display:flex;gap:6px}.term-dots span{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .term-log{flex:1;display:flex;flex-direction:column;gap:9px;overflow:hidden}
+  .term-log .line{color:var(--muted-2);opacity:0;display:flex;gap:8px}
+  .term-log .line.show{animation:appear .3s ease forwards}
+  @keyframes appear{to{opacity:1}}
+  .term-log .line .tag{color:var(--muted);flex-shrink:0}
+  .term-log .line.ok .tag{color:var(--accent)}
+  .cursor{display:inline-block;width:7px;height:13px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:middle;margin-left:2px}
+  @keyframes blink{50%{opacity:0}}
+  .term-footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted-2);font-size:10.5px;display:flex;justify-content:space-between;letter-spacing:.04em}
+  .ring-wrap{width:96px;height:96px;margin-bottom:26px;position:relative}
+  .ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring-bg{stroke:var(--line)}.ring-fg{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:251;stroke-dashoffset:251;animation:fill 2.6s ease forwards;filter:drop-shadow(0 0 6px rgba(53,240,201,.6))}
+  @keyframes fill{to{stroke-dashoffset:20}}
+  .ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:15px;font-weight:600}
+  .step-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+  .step-list li{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12.5px;color:var(--muted-2);transition:color .2s ease}
+  .step-list li .dot{width:6px;height:6px;border-radius:50%;background:var(--line);flex-shrink:0;transition:background .2s ease,box-shadow .2s ease}
+  .step-list li.active{color:var(--text)}.step-list li.active .dot{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+  .step-list li.done{color:var(--muted)}.step-list li.done .dot{background:var(--muted-2)}
+  .result-icon{width:62px;height:62px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+  .result-icon.ok{background:var(--accent-dim);border:1px solid rgba(53,240,201,.3)}
+  .result-icon.fail{background:var(--danger-dim);border:1px solid rgba(255,82,102,.3)}
+  .result-icon svg{width:28px;height:28px}
+  .session-card-inline{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:24px;font-family:var(--font-mono);font-size:12px}
+  .session-row{display:flex;justify-content:space-between;padding:6px 0;color:var(--muted)}
+  .session-row span:last-child{color:var(--text)}
+  .session-row+.session-row{border-top:1px dashed var(--line)}
+  button.primary{width:100%;padding:15px 20px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14.5px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.ghost{width:100%;margin-top:12px;padding:13px 20px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Forensics</div>
+      </div>
+
+      <div class="view active" id="view-login">
+        <div class="eyebrow">Authentication Required</div>
+        <h1>Sign in with Discord</h1>
+        <p class="sub">Authenticate via Discord to access the 3x detection engine. Customer role verification required.</p>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <button class="discord-btn" onclick="discordLogin()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          Continue with Discord
+        </button>
+
+        <div class="secondary-links">
+          <a href="rules.html" class="secondary-link">Rules of Use</a>
+          <a href="guide.html" class="secondary-link">Site Guide</a>
+        </div>
+
+        <p class="footnote">3x requires the Customer role in the controller guild. All scans run locally via the desktop agent. By signing in, you agree to the <a href="rules.html" style="color:var(--accent)">Rules of Use</a>.</p>
+      </div>
+
+      <div class="view" id="view-verify">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 96 96">
+            <circle class="ring-bg" cx="48" cy="48" r="40" fill="none" stroke-width="6"/>
+            <circle class="ring-fg" cx="48" cy="48" r="40" fill="none" stroke-width="6"/>
+          </svg>
+          <div class="ring-pct" id="ringPct">0%</div>
+        </div>
+        <div class="eyebrow">Authenticating</div>
+        <h1>Verifying identity</h1>
+        <p class="sub">Resolving guild token and validating Customer role membership.</p>
+
+        <ul class="step-list" id="stepList">
+          <li data-s="0"><span class="dot"></span> Resolving OAuth2 token</li>
+          <li data-s="1"><span class="dot"></span> Fetching guild memberships</li>
+          <li data-s="2"><span class="dot"></span> Checking Customer role</li>
+          <li data-s="3"><span class="dot"></span> Granting access</li>
+        </ul>
+      </div>
+
+      <div class="view" id="view-ok">
+        <div class="result-icon ok">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#35f0c9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="eyebrow">Authenticated</div>
+        <h1>Access granted</h1>
+        <p class="sub">Discord identity verified. Customer role confirmed. Welcome to 3x.</p>
+
+        <div class="session-card-inline">
+          <div class="session-row"><span>User</span><span id="authUser">—</span></div>
+          <div class="session-row"><span>Session</span><span id="sessId">—</span></div>
+          <div class="session-row"><span>Role</span><span style="color:var(--accent)">Customer</span></div>
+          <div class="session-row"><span>Engine</span><span>3x v3.0.0</span></div>
+        </div>
+
+        <button class="primary" onclick="location.href='dashboard.html'">Open Dashboard</button>
+      </div>
+
+      <div class="view" id="view-fail">
+        <div class="result-icon fail">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#ff5266" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:var(--danger)">Access Denied</div>
+        <h1>Authentication failed</h1>
+        <p class="sub" id="failReason">Customer role not detected or guild membership invalid.</p>
+
+        <div class="session-card-inline">
+          <div class="session-row"><span>Failed at</span><span style="color:var(--danger)">Role validation</span></div>
+        </div>
+
+        <button class="primary" onclick="discordLogin()">Try again</button>
+        <button class="ghost" onclick="showView('view-login')">Back</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <div class="term-head">
+        <span>auth.log</span>
+        <div class="term-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="term-log" id="termLog">
+        <div class="line idle show"><span class="tag">$</span> 3x engine idle — awaiting authentication<span class="cursor"></span></div>
+      </div>
+      <div class="term-footer">
+        <span>local · read-only</span>
+        <span id="clock">00:00:00</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API_BASE = '';
+
+  function tick(){
+    const d = new Date();
+    document.getElementById('clock').textContent = d.toTimeString().slice(0,8);
+  }
+  tick(); setInterval(tick, 1000);
+
+  function showView(id){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function discordLogin(){
+    location.href = '/api/auth/discord';
+  }
+
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token');
+  const user = params.get('user');
+  const error = params.get('error');
+
+  if (token) {
+    localStorage.setItem('3x_token', token);
+    localStorage.setItem('3x_user', user || 'unknown');
+    history.replaceState({}, '', '/');
+    showAuthSuccess(user);
+  } else if (error) {
+    showAuthFail(error);
+  } else if (localStorage.getItem('3x_token')) {
+    verifyToken();
+  }
+
+  async function verifyToken(){
+    const t = localStorage.getItem('3x_token');
+    try {
+      const res = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + t } });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.banned) {
+          showAuthFail('banned');
+          document.getElementById('failReason').textContent = 'Account banned: ' + (data.ban_reason || 'Violation detected');
+          return;
+        }
+        showAuthSuccess(data.username);
+      } else {
+        localStorage.clear();
+      }
+    } catch {
+      localStorage.clear();
+    }
+  }
+
+  function showAuthSuccess(username){
+    showView('view-verify');
+    const steps = document.querySelectorAll('#stepList li');
+    steps.forEach(s => s.classList.remove('active','done'));
+
+    const logLines = [
+      { tag: 'AUTH', text: 'resolving OAuth2 token' },
+      { tag: 'AUTH', text: 'fetching guild memberships' },
+      { tag: 'AUTH', text: 'checking Customer role (1531416721808949378)' },
+      { tag: 'AUTH', text: 'verifying session integrity' },
+      { tag: 'AUTH', text: 'issuing JWT session grant' },
+      { tag: 'OK', text: 'access granted', ok:true },
+    ];
+
+    const termLog = document.getElementById('termLog');
+    termLog.innerHTML = '';
+    logLines.forEach((l, idx) => {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'line' + (l.ok ? ' ok' : '');
+        el.innerHTML = `<span class="tag">${l.tag}</span> ${l.text}`;
+        termLog.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+      }, 260 + idx * 380);
+    });
+
+    steps.forEach((s, idx) => {
+      setTimeout(() => {
+        steps.forEach(x => x.classList.remove('active'));
+        if(idx > 0) steps[idx-1].classList.add('done');
+        s.classList.add('active');
+      }, 300 + idx * 480);
+    });
+
+    let pct = 0;
+    const startTime = Date.now();
+    const ringTimer = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      pct = Math.min(100, Math.round((elapsed/2600)*100));
+      document.getElementById('ringPct').textContent = pct + '%';
+      if(pct >= 100) clearInterval(ringTimer);
+    }, 40);
+
+    setTimeout(() => {
+      steps.forEach(s => { s.classList.add('done'); s.classList.remove('active'); });
+      document.getElementById('authUser').textContent = username || 'LO#0001';
+      document.getElementById('sessId').textContent = '3X-' + Math.random().toString(16).slice(2,8).toUpperCase();
+      showView('view-ok');
+    }, 2900);
+  }
+
+  function showAuthFail(reason){
+    showView('view-fail');
+    const reasons = {
+      'not_in_guild': 'You are not a member of the controller guild.',
+      'no_customer_role': 'Customer role not detected. Contact your controller.',
+      'auth_failed': 'Discord authentication failed. Please try again.',
+      'banned': 'Account banned. Contact the owner for appeals.',
+      'default': 'Authentication failed.'
+    };
+    document.getElementById('failReason').textContent = reasons[reason] || reasons['default'];
+    const termLog = document.getElementById('termLog');
+    termLog.innerHTML = '<div class="line show"><span class="tag">ERR</span> authentication failed: ' + (reasons[reason] || reason) + '</div>';
+  }
+</script>
+</body>
+</html>

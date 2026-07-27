@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1100px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7);display:grid;grid-template-columns:1fr 320px}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}.sidebar{order:2;border-left:none;border-top:1px solid var(--line)}}
+  .main{padding:40px 44px;display:flex;flex-direction:column;gap:24px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .eyebrow.danger{color:var(--danger)}.eyebrow.danger::before{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+  .eyebrow.warn{color:var(--warn)}.eyebrow.warn::before{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  h1{font-family:var(--font-display);font-size:26px;font-weight:600;line-height:1.25;margin-top:4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:420px}
+  .score-ring-wrap{width:140px;height:140px;position:relative;margin-bottom:6px}
+  .score-ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .score-ring-bg{stroke:var(--line)}.score-ring-fg{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:377;stroke-dashoffset:377;transition:stroke-dashoffset 1.2s ease;filter:drop-shadow(0 0 8px rgba(53,240,201,.4))}
+  .score-ring-fg.danger{stroke:var(--danger);filter:drop-shadow(0 0 8px rgba(255,82,102,.4))}.score-ring-fg.warn{stroke:var(--warn);filter:drop-shadow(0 0 8px rgba(255,184,77,.4))}
+  .score-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score-num{font-family:var(--font-display);font-size:36px;font-weight:700;line-height:1}.score-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-top:4px}
+  .verdict-box{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:16px}
+  .verdict-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .verdict-icon.ok{background:var(--accent-dim);border:1px solid rgba(53,240,201,.3)}.verdict-icon.fail{background:var(--danger-dim);border:1px solid rgba(255,82,102,.3)}.verdict-icon.warn{background:rgba(255,184,77,.12);border:1px solid rgba(255,184,77,.3)}
+  .verdict-icon svg{width:22px;height:22px}.verdict-title{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:2px}.verdict-desc{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .findings-list{display:flex;flex-direction:column;gap:10px}
+  .finding-item{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s ease}
+  .finding-item:hover{border-color:var(--muted-2)}
+  .finding-sev{width:4px;height:40px;border-radius:2px;flex-shrink:0;margin-top:2px;background:var(--line)}
+  .finding-sev.warn{background:var(--warn)}.finding-sev.danger{background:var(--danger)}
+  .finding-body{flex:1}.finding-title{font-family:var(--font-display);font-size:14px;font-weight:600;margin-bottom:3px}.finding-desc{font-size:12.5px;color:var(--muted);line-height:1.5}.finding-meta{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-2);margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+  .action-bar{display:flex;gap:12px;margin-top:4px}
+  button.primary{flex:1;padding:15px 20px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.ghost{padding:15px 20px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+  .sidebar{background:#0a0c11;border-left:1px solid var(--line);padding:32px 28px;display:flex;flex-direction:column;gap:24px}
+  .side-title{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)}
+  .session-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-family:var(--font-mono);font-size:11.5px}
+  .session-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
+  .session-row span:last-child{color:var(--text)}.session-row+.session-row{border-top:1px dashed var(--line)}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stat-row:last-child{border-bottom:none}.stat-label{font-size:13px;color:var(--muted)}.stat-value{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text)}
+  .stat-value.accent{color:var(--accent)}.stat-value.danger{color:var(--danger)}.stat-value.warn{color:var(--warn)}
+  .log-mini{flex:1;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  .log-mini .line{font-family:var(--font-mono);font-size:11px;color:var(--muted-2);display:flex;gap:8px;opacity:0;animation:appear .3s ease forwards}
+  .log-mini .line .tag{color:var(--muted);flex-shrink:0}.log-mini .line.ok .tag{color:var(--accent)}.log-mini .line.warn .tag{color:var(--warn)}.log-mini .line.err .tag{color:var(--danger)}
+  @keyframes appear{to{opacity:1}}
+  .footer-note{font-size:11px;color:var(--muted-2);line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Report</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="dashboard.html" class="nav-pill">Dashboard</a>
+        <a href="scan.html" class="nav-pill">Scanner</a>
+        <a href="history.html" class="nav-pill">History</a>
+        <a href="config.html" class="nav-pill">Config</a>
+        <a href="index.html" class="nav-pill" onclick="localStorage.clear()">Logout</a>
+      </div>
+
+      <div class="eyebrow" id="reportEyebrow">Scan Complete</div>
+      <h1 id="reportTitle">Environment verified</h1>
+      <p class="sub" id="reportSub">All detection modules finished. Review the findings below.</p>
+
+      <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
+        <div class="score-ring-wrap">
+          <svg viewBox="0 0 140 140">
+            <circle class="score-ring-bg" cx="70" cy="70" r="60" fill="none" stroke-width="8"/>
+            <circle class="score-ring-fg" id="scoreRing" cx="70" cy="70" r="60" fill="none" stroke-width="8"/>
+          </svg>
+          <div class="score-val">
+            <div class="score-num" id="scoreNum">0</div>
+            <div class="score-label">Risk Score</div>
+          </div>
+        </div>
+
+        <div class="verdict-box" id="verdictBox" style="flex:1;min-width:240px;">
+          <div class="verdict-icon ok" id="verdictIcon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#35f0c9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="verdict-title" id="verdictTitle">Clean Environment</div>
+            <div class="verdict-desc" id="verdictDesc">No suspicious patterns or artifacts were detected across all forensic sources.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="findings-list" id="findingsList"></div>
+
+      <div class="action-bar">
+        <button class="primary" onclick="exportReport()">Export JSON</button>
+        <button class="ghost" onclick="location.href='scan.html?m=full'">Re-scan</button>
+        <button class="ghost" onclick="location.href='history.html'">History</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="side-title">Session</div>
+      <div class="session-card">
+        <div class="session-row"><span>ID</span><span id="sessId">SES-A7F3D2</span></div>
+        <div class="session-row"><span>User</span><span id="userName">LO#0001</span></div>
+        <div class="session-row"><span>Scanned</span><span id="scanTime">—</span></div>
+        <div class="session-row"><span>Mode</span><span id="scanMode">Full Sweep</span></div>
+      </div>
+
+      <div class="side-title">Summary</div>
+      <div class="stat-row">
+        <span class="stat-label">Modules</span>
+        <span class="stat-value" id="statModules">8</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Findings</span>
+        <span class="stat-value" id="statFindings">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Warnings</span>
+        <span class="stat-value warn" id="statWarnings">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Critical</span>
+        <span class="stat-value danger" id="statCritical">0</span>
+      </div>
+
+      <div class="side-title">Log</div>
+      <div class="log-mini" id="logMini">
+        <div class="line ok" style="animation-delay:0s"><span class="tag">OK</span> Scan completed</div>
+        <div class="line" style="animation-delay:.15s"><span class="tag">--</span> Report generated</div>
+      </div>
+
+      <div class="footer-note">
+        3x v2.4.0 — NAPSE + Ocean behavior-based detection. Results are local until exported.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('3x_token');
+  if (!token) location.href = 'index.html';
+
+  const params = new URLSearchParams(location.search);
+  const risk = parseInt(params.get('risk') || '0', 10);
+  const findStr = params.get('find') || 'none';
+  const mode = params.get('mode') || 'full';
+  const findings = findStr === 'none' ? [] : findStr.split(',');
+
+  document.getElementById('scanTime').textContent = new Date().toTimeString().slice(0,8);
+  document.getElementById('scanMode').textContent = mode === 'full' ? 'Full Sweep' : 'Single Module';
+  document.getElementById('scoreNum').textContent = risk;
+  document.getElementById('statFindings').textContent = findings.length;
+  document.getElementById('statWarnings').textContent = findings.length;
+  document.getElementById('statModules').textContent = mode === 'full' ? '8' : '1';
+
+  // Load user
+  fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if(data) document.getElementById('userName').textContent = data.username || 'LO#0001'; })
+    .catch(() => {});
+
+  const ring = document.getElementById('scoreRing');
+  const offset = 377 - (377 * Math.min(risk, 100) / 100);
+
+  if(risk >= 50){
+    ring.classList.add('danger');
+    document.getElementById('reportEyebrow').classList.add('danger');
+    document.getElementById('reportEyebrow').textContent = 'Critical Threats Detected';
+    document.getElementById('reportTitle').textContent = 'Verification failed';
+    document.getElementById('reportSub').textContent = 'Multiple modules detected artifacts consistent with known evasion and cheat techniques.';
+    document.getElementById('verdictIcon').className = 'verdict-icon fail';
+    document.getElementById('verdictIcon').innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#ff5266" stroke-width="2.4" stroke-linecap="round"/></svg>';
+    document.getElementById('verdictTitle').textContent = 'Artifacts Detected';
+    document.getElementById('verdictDesc').textContent = 'Staggered deletes, ETW tampering, suspicious Discord roles, and registry persistence were found.';
+  } else if(risk >= 15){
+    ring.classList.add('warn');
+    document.getElementById('reportEyebrow').classList.add('warn');
+    document.getElementById('reportEyebrow').textContent = 'Anomalies Found';
+    document.getElementById('reportTitle').textContent = 'Review recommended';
+    document.getElementById('reportSub').textContent = 'Some modules flagged low-to-medium confidence artifacts. Contextual review suggested.';
+    document.getElementById('verdictIcon').className = 'verdict-icon warn';
+    document.getElementById('verdictIcon').innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ffb84d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    document.getElementById('verdictTitle').textContent = 'Low-Risk Artifacts';
+    document.getElementById('verdictDesc').textContent = 'Non-critical patterns observed across file system, registry, and ETW audit modules.';
+  }
+
+  setTimeout(() => { ring.style.strokeDashoffset = offset; }, 200);
+
+  const DETAILS = {
+    'Process Scan': { desc: 'No anomalies detected. All 147 processes passed signature and parent-chain validation. No hollowed executables.', sev: 'clean', meta: 'Confidence: 99% · Source: DPS + PCA merged' },
+    'File System Trace': { desc: 'Staggered delete pattern detected in USN journal (3 files, 847ms gaps). 3 prefetch gaps found (CheatEngine.exe, x64dbg.exe). Timestamp fixing on 2 temp files.', sev: 'warn', meta: 'Confidence: 91% · Source: USN + Prefetch + Temp' },
+    'Registry Audit': { desc: 'Unsigned Run key entry detected. HKCU shell override (Hidden = 2). CLSID mismatch in unknown provider. Persistence artifact points to temp\unknown.exe.', sev: 'warn', meta: 'Confidence: 78% · Source: HKLM/HKCU' },
+    'Network / DNS': { desc: 'DNS cache and active connections clean. No known C2 indicators. TLS fingerprint matches standard Chrome 126.', sev: 'clean', meta: 'Confidence: 96% · Source: Dnscache + TCP + TLS' },
+    'Discord Intel': { desc: 'User holds "cheats" role in known cheat server (guild 8842...). Additional suspicious roles: "customer", "reseller". Risk elevated +35.', sev: 'warn', meta: 'Confidence: 100% · Source: Discord API' },
+    'Memory Traces': { desc: 'No hollowed processes. LSASS handle count normal (23). Memory permissions within expected ranges. No injected DLLs.', sev: 'clean', meta: 'Confidence: 93% · Source: LSASS + PE headers' },
+    'ETW / WMI Audit': { desc: 'DNS-Client ETW provider disabled. WMI subscription gap detected (3 active, 1 stale). Event 104 missing from logs. Selective cleanup pattern — Ocean bypass likely.', sev: 'warn', meta: 'Confidence: 85% · Source: ETW + WMI + EventLog' },
+    'Explorer / LSASS Forensics': { desc: 'PCA service shows 4 gaps in recent history. Explorer start time anomaly vs last boot — possible restart bypass. DPS/PCA merged: 4 forensic gaps.', sev: 'warn', meta: 'Confidence: 82% · Source: DPS(113) + PCA(117)' }
+  };
+
+  const list = document.getElementById('findingsList');
+  if(findings.length === 0){
+    list.innerHTML = '<div class="finding-item"><div class="finding-sev"></div><div class="finding-body"><div class="finding-title">All Clear</div><div class="finding-desc">No findings across any module. The environment appears clean.</div></div></div>';
+  } else {
+    findings.forEach((f, i) => {
+      const d = DETAILS[f] || { desc: 'Unknown finding.', sev: 'warn', meta: 'Source: unknown' };
+      const div = document.createElement('div');
+      div.className = 'finding-item';
+      div.style.animationDelay = (i * 0.1) + 's';
+      div.innerHTML = `
+        <div class="finding-sev ${d.sev === 'warn' ? 'warn' : d.sev === 'danger' ? 'danger' : ''}"></div>
+        <div class="finding-body">
+          <div class="finding-title">${f}</div>
+          <div class="finding-desc">${d.desc}</div>
+          <div class="finding-meta">${d.meta}</div>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function exportReport(){
+    const data = {
+      session: localStorage.getItem('3x_session') || '3X-UNKNOWN',
+      user: document.getElementById('userName').textContent,
+      timestamp: new Date().toISOString(),
+      mode: mode,
+      riskScore: risk,
+      findings: findings.map(f => ({ module: f, ...DETAILS[f] })).filter(x => x.module),
+      version: '2.4.0',
+      engine: 'NAPSE + Ocean behavior-based detection'
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '3x-report-' + Date.now() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>

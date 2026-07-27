@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Owner Panel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--info:#5b8cff;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1200px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7)}
+  .header{padding:24px 36px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--danger),#b03040);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(255,82,102,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .owner-badge{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:6px 12px;border-radius:6px;background:var(--danger-dim);border:1px solid rgba(255,82,102,.3);color:var(--danger)}
+  .nav-pills{display:flex;gap:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(255,82,102,.08);border-color:rgba(255,82,102,.3);color:var(--danger)}
+  .content{padding:32px 36px;display:flex;flex-direction:column;gap:24px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
+  .stat-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .stat-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+  .stat-value{font-family:var(--font-display);font-size:28px;font-weight:700}
+  .stat-value.accent{color:var(--accent)}.stat-value.danger{color:var(--danger)}.stat-value.warn{color:var(--warn)}
+  .stat-sub{font-size:11px;color:var(--muted-2);margin-top:4px}
+  .section-title{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+  .table-wrap{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .table-header{display:grid;grid-template-columns:80px 1fr 1fr 100px 100px 120px 80px;gap:12px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  @media(max-width:900px){.table-header{display:none}}
+  .table-row{display:grid;grid-template-columns:80px 1fr 1fr 100px 100px 120px 80px;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:center;font-size:12.5px;transition:background .1s ease}
+  @media(max-width:900px){.table-row{grid-template-columns:1fr;gap:6px;padding:14px}}
+  .table-row:hover{background:rgba(53,240,201,.02)}
+  .table-row:last-child{border-bottom:none}
+  .table-row .cell{color:var(--muted)}
+  .table-row .cell strong{color:var(--text);font-weight:500}
+  .table-row .cell .trunc{font-family:var(--font-mono);font-size:11px;color:var(--muted-2)}
+  .risk-pill{font-family:var(--font-mono);font-size:10px;padding:3px 10px;border-radius:4px;font-weight:600}
+  .risk-pill.clean{background:rgba(53,240,201,.1);color:var(--accent);border:1px solid var(--accent-dim)}
+  .risk-pill.warn{background:rgba(255,184,77,.1);color:var(--warn);border:1px solid rgba(255,184,77,.2)}
+  .risk-pill.danger{background:rgba(255,82,102,.1);color:var(--danger);border:1px solid rgba(255,82,102,.2)}
+  .ban-btn{font-family:var(--font-mono);font-size:10px;padding:5px 12px;border-radius:5px;background:var(--danger-dim);border:1px solid rgba(255,82,102,.3);color:var(--danger);cursor:pointer;transition:all .15s ease}
+  .ban-btn:hover{background:rgba(255,82,102,.2)}
+  .ban-btn:disabled{opacity:.4;cursor:not-allowed}
+  .tab-bar{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .tab{font-family:var(--font-mono);font-size:11px;padding:8px 16px;border-radius:6px;color:var(--muted);cursor:pointer;transition:all .15s ease;border:none;background:transparent}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:rgba(53,240,201,.06);color:var(--accent)}
+  .filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .filter-input{font-family:var(--font-mono);font-size:12px;padding:8px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);outline:none;transition:border-color .15s ease;min-width:200px}
+  .filter-input:focus{border-color:var(--accent-dim)}
+  .filter-btn{font-family:var(--font-mono);font-size:11px;padding:8px 16px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--muted);cursor:pointer;transition:all .15s ease}
+  .filter-btn:hover{border-color:var(--muted-2);color:var(--text)}
+  .filter-btn.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+  .empty-state svg{width:48px;height:48px;margin-bottom:16px;opacity:.3}
+  .log-detail{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:12px;font-family:var(--font-mono);font-size:11.5px;line-height:1.7;max-height:300px;overflow-y:auto;display:none}
+  .log-detail.show{display:block}
+  .log-detail pre{margin:0;color:var(--muted);white-space:pre-wrap;word-break:break-all}
+  .log-detail .key{color:var(--accent)}.log-detail .str{color:var(--warn)}.log-detail .num{color:var(--info)}
+  .toggle-detail{font-family:var(--font-mono);font-size:10px;color:var(--accent);cursor:pointer;text-decoration:underline}
+  .banned-row{opacity:.4}
+  .banned-row .cell{text-decoration:line-through}
+  .banned-tag{font-family:var(--font-mono);font-size:9px;padding:2px 8px;border-radius:4px;background:var(--danger-dim);color:var(--danger);margin-left:8px}
+  .refresh-btn{font-family:var(--font-mono);font-size:11px;padding:8px 16px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--accent);cursor:pointer;transition:all .15s ease;display:flex;align-items:center;gap:6px}
+  .refresh-btn:hover{border-color:var(--accent-dim)}
+  .refresh-btn.spin svg{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Owner Panel</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span class="owner-badge">Owner Access</span>
+        <div class="nav-pills">
+          <a href="dashboard.html" class="nav-pill">Dashboard</a>
+          <a href="owner-panel.html" class="nav-pill active">Owner</a>
+          <a href="index.html" class="nav-pill" onclick="localStorage.clear()">Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Scans</div>
+          <div class="stat-value accent" id="statTotal">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Users</div>
+          <div class="stat-value" id="statUsers">0</div>
+          <div class="stat-sub">Unique customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Banned</div>
+          <div class="stat-value danger" id="statBanned">0</div>
+          <div class="stat-sub">Violations detected</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Risk</div>
+          <div class="stat-value warn" id="statAvgRisk">0</div>
+          <div class="stat-sub">Across all scans</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+          <div class="section-title"><span class="dot"></span>Scan Logs</div>
+          <button class="refresh-btn" id="refreshBtn" onclick="loadLogs()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab active" onclick="setTab('all')">All Scans</button>
+          <button class="tab" onclick="setTab('banned')">Banned Users</button>
+          <button class="tab" onclick="setTab('violations')">Violations</button>
+          <button class="tab" onclick="setTab('tokens')">Discord Tokens</button>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" class="filter-input" id="searchInput" placeholder="Search by user, HWID, or Discord ID..." oninput="filterLogs()">
+          <button class="filter-btn active" onclick="filterSeverity('all')" id="f-all">All</button>
+          <button class="filter-btn" onclick="filterSeverity('clean')" id="f-clean">Clean</button>
+          <button class="filter-btn" onclick="filterSeverity('warn')" id="f-warn">Warning</button>
+          <button class="filter-btn" onclick="filterSeverity('danger')" id="f-danger">Critical</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-header">
+            <div>ID</div>
+            <div>User</div>
+            <div>Discord ID</div>
+            <div>HWID</div>
+            <div>Risk</div>
+            <div>Time</div>
+            <div>Action</div>
+          </div>
+          <div id="logsTable"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER_ID = '827236167686291477';
+let allLogs = [];
+let currentTab = 'all';
+let currentSeverity = 'all';
+
+async function loadLogs() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spin');
+  try {
+    const res = await fetch('/api/owner/logs', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('3x_token') } });
+    if (!res.ok) throw new Error('Unauthorized');
+    const data = await res.json();
+    allLogs = data.logs || [];
+    updateStats();
+    renderTable();
+  } catch(e) {
+    document.getElementById('logsTable').innerHTML = '<div class="empty-state"><div style="color:var(--danger)">Access denied. Owner authentication required.</div></div>';
+  }
+  btn.classList.remove('spin');
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allLogs.length;
+  const users = new Set(allLogs.map(l => l.discord_id));
+  document.getElementById('statUsers').textContent = users.size;
+  const banned = allLogs.filter(l => l.banned).length;
+  document.getElementById('statBanned').textContent = banned;
+  const avg = allLogs.length ? Math.round(allLogs.reduce((a,l) => a + (l.risk_score || 0), 0) / allLogs.length) : 0;
+  document.getElementById('statAvgRisk').textContent = avg;
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderTable();
+}
+
+function filterSeverity(sev) {
+  currentSeverity = sev;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('f-' + sev).classList.add('active');
+  renderTable();
+}
+
+function filterLogs() {
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = allLogs;
+
+  if (currentTab === 'banned') filtered = filtered.filter(l => l.banned);
+  if (currentTab === 'violations') filtered = filtered.filter(l => l.violation);
+  if (currentTab === 'tokens') filtered = filtered.filter(l => l.discord_token);
+
+  if (currentSeverity !== 'all') {
+    filtered = filtered.filter(l => {
+      const r = l.risk_score || 0;
+      if (currentSeverity === 'clean') return r < 15;
+      if (currentSeverity === 'warn') return r >= 15 && r < 50;
+      if (currentSeverity === 'danger') return r >= 50;
+      return true;
+    });
+  }
+
+  if (search) {
+    filtered = filtered.filter(l => 
+      (l.username || '').toLowerCase().includes(search) ||
+      (l.discord_id || '').includes(search) ||
+      (l.hwid || '').includes(search)
+    );
+  }
+
+  const container = document.getElementById('logsTable');
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:30px"><div>No logs match your filters</div></div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  filtered.forEach((log, i) => {
+    const risk = log.risk_score || 0;
+    const sev = risk >= 50 ? 'danger' : risk >= 15 ? 'warn' : 'clean';
+    const label = risk >= 50 ? 'Critical' : risk >= 15 ? 'Warning' : 'Clean';
+    const row = document.createElement('div');
+    row.className = 'table-row' + (log.banned ? ' banned-row' : '');
+    row.innerHTML = `
+      <div class="cell"><strong>#${log.id || i+1}</strong></div>
+      <div class="cell">
+        <strong>${log.username || 'Unknown'}</strong>
+        ${log.banned ? '<span class="banned-tag">BANNED</span>' : ''}
+        ${log.violation ? '<span class="banned-tag" style="background:rgba(255,184,77,.1);color:var(--warn);border-color:rgba(255,184,77,.2)">VIOLATION</span>' : ''}
+      </div>
+      <div class="cell"><span class="trunc">${log.discord_id || '—'}</span></div>
+      <div class="cell"><span class="trunc">${log.hwid ? log.hwid.substring(0,12)+'...' : '—'}</span></div>
+      <div class="cell"><span class="risk-pill ${sev}">${risk} — ${label}</span></div>
+      <div class="cell">${log.created_at ? new Date(log.created_at).toLocaleString() : '—'}</div>
+      <div class="cell">
+        <button class="ban-btn" onclick="toggleDetail(${i})" style="margin-right:6px">Details</button>
+        ${!log.banned ? `<button class="ban-btn" onclick="banUser('${log.discord_id}')">Ban</button>` : '<button class="ban-btn" disabled>Banned</button>'}
+      </div>
+    `;
+    container.appendChild(row);
+
+    const detail = document.createElement('div');
+    detail.className = 'log-detail';
+    detail.id = 'detail-' + i;
+    detail.innerHTML = `<pre>${JSON.stringify(log, null, 2)}</pre>`;
+    container.appendChild(detail);
+  });
+}
+
+function toggleDetail(idx) {
+  const el = document.getElementById('detail-' + idx);
+  el.classList.toggle('show');
+}
+
+async function banUser(discordId) {
+  if (!confirm('Ban user ' + discordId + '? This cannot be undone.')) return;
+  try {
+    const res = await fetch('/api/owner/ban', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('3x_token'), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ discord_id: discordId })
+    });
+    if (res.ok) {
+      alert('User banned successfully');
+      loadLogs();
+    } else {
+      alert('Failed to ban user');
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+// Check owner access
+async function checkOwner() {
+  try {
+    const res = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('3x_token') } });
+    if (!res.ok) { location.href = 'index.html'; return; }
+    const data = await res.json();
+    if (data.discord_id !== OWNER_ID) {
+      location.href = 'dashboard.html';
+    }
+  } catch {
+    location.href = 'index.html';
+  }
+}
+
+checkOwner();
+loadLogs();
+</script>
+</body>
+</html>

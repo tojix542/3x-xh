@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: 3x-scanner
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: DISCORD_CLIENT_ID
+        value: 1519776355951055110
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: WEBHOOK_URL
+        sync: false
+      - key: OWNER_ID
+        value: 827236167686291477
+      - key: GUILD_ID
+        value: 1527100025765625856
+      - key: CUSTOMER_ROLE_ID
+        value: 1531416721808949378
+      - key: REDIRECT_URI
+        value: https://3x-scanner.onrender.com/api/auth/callback

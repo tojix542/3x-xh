@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Configuration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1100px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7);display:grid;grid-template-columns:1fr 320px}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}.sidebar{order:2;border-left:none;border-top:1px solid var(--line)}}
+  .main{padding:40px 44px;display:flex;flex-direction:column;gap:22px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-family:var(--font-display);font-size:26px;font-weight:600;line-height:1.25;margin-top:6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:420px}
+  .config-section{margin-bottom:28px}
+  .config-section-title{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:14px;color:var(--text)}
+  .config-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}
+  .config-row:last-child{border-bottom:none}
+  .config-label{font-size:14px;color:var(--text);font-weight:500}
+  .config-desc{font-size:12px;color:var(--muted);margin-top:3px;max-width:320px;line-height:1.5}
+  .toggle{width:44px;height:24px;border-radius:12px;background:var(--line);position:relative;cursor:pointer;transition:background .2s ease;flex-shrink:0}
+  .toggle.on{background:var(--accent-dim)}
+  .toggle::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:var(--muted-2);top:2px;left:2px;transition:all .2s ease}
+  .toggle.on::after{background:var(--accent);left:22px}
+  input[type="range"]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--line);outline:none}input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px rgba(53,240,201,.4)}
+  .range-wrap{display:flex;align-items:center;gap:10px;flex:1;max-width:200px}
+  .range-val{font-family:var(--font-mono);font-size:12px;color:var(--accent);margin-left:10px;min-width:30px;text-align:right}
+  .saved-toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent-dim);border:1px solid rgba(53,240,201,.3);color:var(--accent);padding:10px 24px;border-radius:8px;font-family:var(--font-mono);font-size:12px;opacity:0;transition:all .3s ease;z-index:100}
+  .saved-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .action-bar{display:flex;gap:12px;margin-top:8px}
+  button.primary{flex:1;padding:15px 20px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.ghost{padding:15px 20px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+  .sidebar{background:#0a0c11;border-left:1px solid var(--line);padding:32px 28px;display:flex;flex-direction:column;gap:24px}
+  .side-title{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)}
+  .session-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-family:var(--font-mono);font-size:11.5px}
+  .session-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
+  .session-row span:last-child{color:var(--text)}.session-row+.session-row{border-top:1px dashed var(--line)}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stat-row:last-child{border-bottom:none}.stat-label{font-size:13px;color:var(--muted)}.stat-value{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text)}
+  .stat-value.accent{color:var(--accent)}.stat-value.danger{color:var(--danger)}.stat-value.warn{color:var(--warn)}
+  .footer-note{font-size:11px;color:var(--muted-2);line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Config</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="dashboard.html" class="nav-pill">Dashboard</a>
+        <a href="scan.html" class="nav-pill">Scanner</a>
+        <a href="history.html" class="nav-pill">History</a>
+        <a href="config.html" class="nav-pill active">Config</a>
+        <a href="index.html" class="nav-pill" onclick="localStorage.clear()">Logout</a>
+      </div>
+
+      <div class="eyebrow">Settings</div>
+      <h1>Detection configuration</h1>
+      <p class="sub">Toggle modules, adjust thresholds, and configure the 3x detection engine to match your environment.</p>
+
+      <div class="config-section">
+        <div class="config-section-title">Active Modules</div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Process Scan</div>
+            <div class="config-desc">Enumerate processes and compare hashes against signature database</div>
+          </div>
+          <div class="toggle on" data-key="mod_process" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">File System Trace</div>
+            <div class="config-desc">Detect staggered deletes, prefetch gaps, and timestamp anomalies</div>
+          </div>
+          <div class="toggle on" data-key="mod_file" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Registry Audit</div>
+            <div class="config-desc">Scan for persistence entries, spoofed keys, and CLSID mismatches</div>
+          </div>
+          <div class="toggle on" data-key="mod_registry" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Network / DNS</div>
+            <div class="config-desc">Inspect DNS cache, active connections, and C2 indicators</div>
+          </div>
+          <div class="toggle on" data-key="mod_network" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Discord Intel</div>
+            <div class="config-desc">Cross-reference roles against known cheat server database</div>
+          </div>
+          <div class="toggle on" data-key="mod_discord" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Memory Traces</div>
+            <div class="config-desc">Inspect LSASS handles, injected modules, and hollowed processes</div>
+          </div>
+          <div class="toggle on" data-key="mod_memory" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">ETW / WMI Audit</div>
+            <div class="config-desc">Detect provider tampering and subscription gaps</div>
+          </div>
+          <div class="toggle on" data-key="mod_etw" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Explorer / LSASS Forensics</div>
+            <div class="config-desc">Analyze DPS, PCA, explorer and lsass artifacts</div>
+          </div>
+          <div class="toggle on" data-key="mod_explorer" onclick="toggle(this)"></div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-section-title">Detection Thresholds</div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Warning Threshold</div>
+            <div class="config-desc">Risk score at which findings are flagged as warnings</div>
+          </div>
+          <div class="range-wrap">
+            <input type="range" min="5" max="40" value="15" id="warnThreshold" oninput="updateRange(this)">
+            <span class="range-val" id="warnVal">15</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Critical Threshold</div>
+            <div class="config-desc">Risk score at which findings are flagged as critical</div>
+          </div>
+          <div class="range-wrap">
+            <input type="range" min="30" max="80" value="50" id="critThreshold" oninput="updateRange(this)">
+            <span class="range-val" id="critVal">50</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-section-title">Discord Integration</div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Auto-assign "cheats" role</div>
+            <div class="config-desc">Automatically assign the cheats role when scan detects violations</div>
+          </div>
+          <div class="toggle" data-key="auto_role" onclick="toggle(this)"></div>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Webhook alerts</div>
+            <div class="config-desc">Send scan results to configured Discord webhook</div>
+          </div>
+          <div class="toggle" data-key="webhook" onclick="toggle(this)"></div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="primary" onclick="saveConfig()">Save Configuration</button>
+        <button class="ghost" onclick="resetDefaults()">Reset Defaults</button>
+        <button class="ghost" onclick="location.href='dashboard.html'">Dashboard</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="side-title">Active Session</div>
+      <div class="session-card">
+        <div class="session-row"><span>ID</span><span id="sessId">—</span></div>
+        <div class="session-row"><span>User</span><span id="userName">—</span></div>
+        <div class="session-row"><span>Role</span><span style="color:var(--accent)">Customer</span></div>
+      </div>
+
+      <div class="side-title">Engine Info</div>
+      <div class="stat-row">
+        <span class="stat-label">Version</span>
+        <span class="stat-value">2.4.0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Engine</span>
+        <span class="stat-value accent">NAPSE + Ocean</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Sources</span>
+        <span class="stat-value">8 modules</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Signatures</span>
+        <span class="stat-value">4,200+</span>
+      </div>
+
+      <div class="side-title">About</div>
+      <div class="footer-note">
+        3x Forensics combines NAPSE behavior-based detection with Ocean forensic trace analysis. All processing occurs client-side via the desktop agent.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="saved-toast" id="toast">Configuration saved</div>
+
+<script>
+  const token = localStorage.getItem('3x_token');
+  if (!token) location.href = 'index.html';
+
+  document.getElementById('sessId').textContent = localStorage.getItem('3x_session') || '3X-UNKNOWN';
+
+  async function loadUser() {
+    try {
+      const res = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('userName').textContent = data.username || 'LO#0001';
+      }
+    } catch {}
+  }
+
+  function toggle(el){
+    el.classList.toggle('on');
+  }
+
+  function updateRange(el){
+    const val = el.value;
+    if(el.id === 'warnThreshold') document.getElementById('warnVal').textContent = val;
+    if(el.id === 'critThreshold') document.getElementById('critVal').textContent = val;
+  }
+
+  function saveConfig(){
+    const config = {};
+    document.querySelectorAll('.toggle').forEach(t => {
+      config[t.dataset.key] = t.classList.contains('on');
+    });
+    config.warnThreshold = document.getElementById('warnThreshold').value;
+    config.critThreshold = document.getElementById('critThreshold').value;
+    localStorage.setItem('3x_config', JSON.stringify(config));
+
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function resetDefaults(){
+    document.querySelectorAll('.toggle').forEach(t => {
+      if(t.dataset.key.startsWith('mod_')) t.classList.add('on');
+      else t.classList.remove('on');
+    });
+    document.getElementById('warnThreshold').value = 15;
+    document.getElementById('warnVal').textContent = 15;
+    document.getElementById('critThreshold').value = 50;
+    document.getElementById('critVal').textContent = 50;
+    saveConfig();
+  }
+
+  const saved = localStorage.getItem('3x_config');
+  if(saved){
+    const config = JSON.parse(saved);
+    document.querySelectorAll('.toggle').forEach(t => {
+      if(config[t.dataset.key] !== undefined){
+        t.classList.toggle('on', config[t.dataset.key]);
+      }
+    });
+    if(config.warnThreshold){
+      document.getElementById('warnThreshold').value = config.warnThreshold;
+      document.getElementById('warnVal').textContent = config.warnThreshold;
+    }
+    if(config.critThreshold){
+      document.getElementById('critThreshold').value = config.critThreshold;
+      document.getElementById('critVal').textContent = config.critThreshold;
+    }
+  }
+
+  loadUser();
+</script>
+</body>
+</html>

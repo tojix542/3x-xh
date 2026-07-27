@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — History</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1100px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7);display:grid;grid-template-columns:1fr 320px}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}.sidebar{order:2;border-left:none;border-top:1px solid var(--line);min-height:260px}}
+  .main{padding:40px 44px;display:flex;flex-direction:column;gap:22px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-family:var(--font-display);font-size:26px;font-weight:600;line-height:1.25;margin-top:6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:420px}
+  .history-list{display:flex;flex-direction:column;gap:10px}
+  .history-item{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:border-color .15s ease}
+  .history-item:hover{border-color:var(--muted-2)}
+  .history-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .history-dot.clean{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+  .history-dot.warn{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+  .history-dot.danger{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+  .history-info{flex:1}
+  .history-time{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-bottom:2px}
+  .history-mode{font-size:13px;font-weight:600}
+  .history-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .history-risk{font-family:var(--font-mono);font-size:14px;font-weight:600}
+  .history-risk.clean{color:var(--accent)}.history-risk.warn{color:var(--warn)}.history-risk.danger{color:var(--danger)}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+  .empty-state svg{width:48px;height:48px;margin-bottom:16px;opacity:.3}
+  .action-bar{display:flex;gap:12px;margin-top:8px}
+  button.ghost{padding:15px 20px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+  button.danger-btn{padding:15px 20px;background:var(--danger-dim);border:1px solid rgba(255,82,102,.3);color:var(--danger);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:all .15s ease}
+  button.danger-btn:hover{background:rgba(255,82,102,.15)}
+  .sidebar{background:#0a0c11;border-left:1px solid var(--line);padding:32px 28px;display:flex;flex-direction:column;gap:24px}
+  .side-title{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)}
+  .session-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-family:var(--font-mono);font-size:11.5px}
+  .session-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
+  .session-row span:last-child{color:var(--text)}.session-row+.session-row{border-top:1px dashed var(--line)}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stat-row:last-child{border-bottom:none}.stat-label{font-size:13px;color:var(--muted)}.stat-value{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text)}
+  .stat-value.accent{color:var(--accent)}.stat-value.danger{color:var(--danger)}.stat-value.warn{color:var(--warn)}
+  .footer-note{font-size:11px;color:var(--muted-2);line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> History</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="dashboard.html" class="nav-pill">Dashboard</a>
+        <a href="scan.html" class="nav-pill">Scanner</a>
+        <a href="history.html" class="nav-pill active">History</a>
+        <a href="config.html" class="nav-pill">Config</a>
+        <a href="index.html" class="nav-pill" onclick="localStorage.clear()">Logout</a>
+      </div>
+
+      <div class="eyebrow">Archive</div>
+      <h1>Scan history</h1>
+      <p class="sub">Previous scan sessions from the server database. Click any entry to view details.</p>
+
+      <div class="history-list" id="historyList"></div>
+
+      <div class="action-bar">
+        <button class="ghost" onclick="location.href='dashboard.html'">Dashboard</button>
+        <button class="danger-btn" onclick="clearHistory()">Clear Local History</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="side-title">Active Session</div>
+      <div class="session-card">
+        <div class="session-row"><span>ID</span><span id="sessId">—</span></div>
+        <div class="session-row"><span>User</span><span id="userName">—</span></div>
+        <div class="session-row"><span>Role</span><span style="color:var(--accent)">Customer</span></div>
+      </div>
+
+      <div class="side-title">Stats</div>
+      <div class="stat-row">
+        <span class="stat-label">Total Scans</span>
+        <span class="stat-value" id="totalScans">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Clean</span>
+        <span class="stat-value accent" id="cleanCount">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Warnings</span>
+        <span class="stat-value warn" id="warnCount">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Critical</span>
+        <span class="stat-value danger" id="dangerCount">0</span>
+      </div>
+
+      <div class="side-title">Info</div>
+      <div class="footer-note">
+        History is stored in the server database. Clearing local storage only removes cached frontend data.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('3x_token');
+  if (!token) location.href = 'index.html';
+
+  document.getElementById('sessId').textContent = localStorage.getItem('3x_session') || '3X-UNKNOWN';
+
+  async function loadUser() {
+    try {
+      const res = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('userName').textContent = data.username || 'LO#0001';
+      }
+    } catch {}
+  }
+
+  async function renderHistory(){
+    const list = document.getElementById('historyList');
+    try {
+      const res = await fetch('/api/scan/history', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!res.ok) throw new Error('Failed to load');
+      const scans = await res.json();
+
+      document.getElementById('totalScans').textContent = scans.length;
+      document.getElementById('cleanCount').textContent = scans.filter(h => (h.risk_score || 0) < 15).length;
+      document.getElementById('warnCount').textContent = scans.filter(h => (h.risk_score || 0) >= 15 && (h.risk_score || 0) < 50).length;
+      document.getElementById('dangerCount').textContent = scans.filter(h => (h.risk_score || 0) >= 50).length;
+
+      if(scans.length === 0){
+        list.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>No scan history yet</div>
+            <div style="font-size:12px;margin-top:4px">Run a scan to see results here</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = '';
+      scans.forEach((h, i) => {
+        const date = new Date(h.created_at);
+        const timeStr = date.toLocaleString();
+        const risk = h.risk_score || 0;
+        const sev = risk >= 50 ? 'danger' : risk >= 15 ? 'warn' : 'clean';
+        const label = risk >= 50 ? 'Critical' : risk >= 15 ? 'Warning' : 'Clean';
+        let findCount = 0;
+        try { findCount = JSON.parse(h.findings || '[]').length; } catch {}
+
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+          <div class="history-dot ${sev}"></div>
+          <div class="history-info">
+            <div class="history-time">${timeStr}</div>
+            <div class="history-mode">${h.mode === 'full' ? 'Full Sweep' : 'Single Module'} · ${findCount} finding${findCount !== 1 ? 's' : ''}</div>
+            <div class="history-meta">Status: ${h.status} · Session: ${h.session_id || 'unknown'}</div>
+          </div>
+          <div class="history-risk ${sev}">${risk}</div>
+        `;
+        list.appendChild(div);
+      });
+    } catch (err) {
+      list.innerHTML = `<div class="empty-state"><div>Error loading history</div><div style="font-size:12px;margin-top:4px">${err.message}</div></div>`;
+    }
+  }
+
+  function clearHistory(){
+    localStorage.removeItem('3x_history');
+    renderHistory();
+  }
+
+  loadUser();
+  renderHistory();
+</script>
+</body>
+</html>

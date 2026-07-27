@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Site Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--info:#5b8cff;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1000px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7)}
+  .main{padding:48px 44px;display:flex;flex-direction:column;gap:22px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-family:var(--font-display);font-size:28px;font-weight:600;line-height:1.25;margin-top:6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:520px}
+  .guide-section{margin-top:8px}
+  .guide-title{font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .guide-title .num{width:28px;height:28px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;color:var(--accent)}
+  .step-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:12px;transition:border-color .15s ease}
+  .step-card:hover{border-color:var(--muted-2)}
+  .step-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .step-badge{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:5px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(53,240,201,.2)}
+  .step-badge.warn{background:rgba(255,184,77,.1);color:var(--warn);border:1px solid rgba(255,184,77,.2)}
+  .step-badge.danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,82,102,.2)}
+  .step-name{font-family:var(--font-display);font-size:15px;font-weight:600}
+  .step-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px}
+  .code-block{background:#0a0c11;border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-family:var(--font-mono);font-size:12px;color:var(--text);overflow-x:auto;line-height:1.6}
+  .code-block .comment{color:var(--muted-2)}
+  .code-block .cmd{color:var(--accent)}
+  .code-block .arg{color:var(--warn)}
+  .tip-box{background:rgba(53,240,201,.04);border:1px solid var(--accent-dim);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;margin-top:10px}
+  .tip-icon{font-size:18px;flex-shrink:0}
+  .tip-text{font-size:12.5px;color:var(--muted);line-height:1.6}
+  .tip-text strong{color:var(--accent)}
+  .screenshot-placeholder{background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:30px;text-align:center;color:var(--muted-2);font-size:12px;margin:10px 0}
+  .module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+  @media(max-width:560px){.module-grid{grid-template-columns:1fr}}
+  .module-chip{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:12.5px}
+  .module-chip strong{display:block;margin-bottom:4px;color:var(--text)}
+  .module-chip span{color:var(--muted)}
+  .action-bar{display:flex;gap:12px;margin-top:8px}
+  button.primary{padding:15px 28px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.ghost{padding:15px 28px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Guide</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="index.html" class="nav-pill">Auth</a>
+        <a href="dashboard.html" class="nav-pill">Dashboard</a>
+        <a href="scan.html" class="nav-pill">Scanner</a>
+        <a href="config.html" class="nav-pill">Config</a>
+        <a href="guide.html" class="nav-pill active">Guide</a>
+        <a href="rules.html" class="nav-pill">Rules</a>
+      </div>
+
+      <div class="eyebrow">Documentation</div>
+      <h1>Site Guide</h1>
+      <p class="sub">Everything you need to know about using 3x Forensics — from authentication to scan interpretation.</p>
+
+      <div class="guide-section">
+        <div class="guide-title"><span class="num">1</span> Getting Started</div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge">Step 1</span>
+            <span class="step-name">Authenticate with Discord</span>
+          </div>
+          <div class="step-desc">Click "Continue with Discord" on the auth page. You must have the <strong>Customer</strong> role in the controller guild to access the dashboard. If you don't have the role, contact the owner.</div>
+          <div class="tip-box">
+            <span class="tip-icon">💡</span>
+            <div class="tip-text"><strong>Tip:</strong> Make sure you're logged into the correct Discord account before clicking. The auth flow will use your current Discord session.</div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge">Step 2</span>
+            <span class="step-name">Download the Desktop Agent</span>
+          </div>
+          <div class="step-desc">From the Dashboard, click "Download 3x-Agent.ps1". This PowerShell script runs on the target Windows machine and collects forensic data. The agent runs with a hidden console and shows a loading UI until complete.</div>
+          <div class="code-block">
+<span class="cmd">powershell</span> <span class="arg">-WindowStyle Hidden -ExecutionPolicy Bypass -File</span> .x-agent.ps1 <span class="arg">-ApiUrl</span> "https://your-domain.com"
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge">Step 3</span>
+            <span class="step-name">Run the Agent on Target PC</span>
+          </div>
+          <div class="step-desc">Transfer the agent to the target machine and run it. The agent will display a loading window while collecting data. Once complete, it automatically submits the report to the 3x server and shows results in your browser.</div>
+          <div class="tip-box">
+            <span class="tip-icon">⚠️</span>
+            <div class="tip-text"><strong>Important:</strong> The agent requires Administrator privileges. Right-click PowerShell and select "Run as Administrator" before executing.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <div class="guide-title"><span class="num">2</span> Understanding Scan Results</div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge warn">Risk Score</span>
+            <span class="step-name">0-100 Scale</span>
+          </div>
+          <div class="step-desc">The risk score aggregates findings across all modules. Lower is better. Scores above 50 indicate critical artifacts detected.</div>
+          <div class="module-grid">
+            <div class="module-chip"><strong>0-14</strong><span>Clean — No suspicious activity</span></div>
+            <div class="module-chip"><strong>15-49</strong><span>Warning — Low-risk artifacts found</span></div>
+            <div class="module-chip"><strong>50-100</strong><span>Critical — Evasion techniques detected</span></div>
+            <div class="module-chip"><strong>100+</strong><span>Severe — Multiple cheat indicators</span></div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge">Modules</span>
+            <span class="step-name">What Each Module Checks</span>
+          </div>
+          <div class="module-grid">
+            <div class="module-chip"><strong>Process Scan</strong><span>Running processes, hashes, parent chains</span></div>
+            <div class="module-chip"><strong>File System</strong><span>USN journal, prefetch gaps, temp files</span></div>
+            <div class="module-chip"><strong>Registry</strong><span>Run keys, shell overrides, CLSID mismatches</span></div>
+            <div class="module-chip"><strong>Network/DNS</strong><span>DNS cache, C2 indicators, TLS fingerprints</span></div>
+            <div class="module-chip"><strong>Discord Intel</strong><span>Role cross-reference, cheat server membership</span></div>
+            <div class="module-chip"><strong>Memory</strong><span>LSASS handles, injected DLLs, hollowed processes</span></div>
+            <div class="module-chip"><strong>ETW/WMI</strong><span>Provider tampering, subscription gaps</span></div>
+            <div class="module-chip"><strong>Explorer/LSASS</strong><span>DPS/PCA artifacts, restart anomalies</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <div class="guide-title"><span class="num">3</span> Limitations & Rules</div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge danger">Critical</span>
+            <span class="step-name">Scan Limits</span>
+          </div>
+          <div class="step-desc">Each customer is limited to <strong>2 scans per 24-hour period</strong>. Exceeding this triggers an automatic ban. Self-scanning is also detected and banned instantly. Review the <a href="rules.html" style="color:var(--accent)">Rules of Use</a> for full details.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge">Agent</span>
+            <span class="step-name">Windows-Only</span>
+          </div>
+          <div class="step-desc">The 3x Agent currently supports Windows 10 and Windows 11 only. macOS and Linux are not supported. The agent requires PowerShell 5.1 or later.</div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <div class="guide-title"><span class="num">4</span> Troubleshooting</div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge warn">Issue</span>
+            <span class="step-name">"Access Denied" on Agent</span>
+          </div>
+          <div class="step-desc">Run PowerShell as Administrator. Right-click the PowerShell icon and select "Run as Administrator" before executing the agent script.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge warn">Issue</span>
+            <span class="step-name">"Customer Role Not Found"</span>
+          </div>
+          <div class="step-desc">You need the Customer role in the controller Discord server. Contact the owner to get the role assigned. Your Discord ID is logged automatically.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-badge warn">Issue</span>
+            <span class="step-name">Scan Results Not Showing</span>
+          </div>
+          <div class="step-desc">Ensure the agent's -ApiUrl parameter matches your site's URL. If running locally, use http://localhost:3000. Check the browser console for API errors.</div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="primary" onclick="location.href='dashboard.html'">Open Dashboard</button>
+        <button class="ghost" onclick="location.href='rules.html'">Read Rules</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

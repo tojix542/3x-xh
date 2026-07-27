@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Rules of Use</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:900px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7)}
+  .main{padding:48px 44px;display:flex;flex-direction:column;gap:22px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-family:var(--font-display);font-size:28px;font-weight:600;line-height:1.25;margin-top:6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:520px}
+  .section{margin-top:8px}
+  .section-title{font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .section-title .num{width:28px;height:28px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;color:var(--accent)}
+  .rule-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .rule-item{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+  .rule-icon{width:32px;height:32px;border-radius:8px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+  .rule-text{flex:1}
+  .rule-text strong{font-family:var(--font-display);font-size:14px;font-weight:600;display:block;margin-bottom:4px}
+  .rule-text p{font-size:13px;color:var(--muted);line-height:1.6}
+  .rule-text .tag{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:4px;background:var(--danger-dim);color:var(--danger);display:inline-block;margin-top:6px}
+  .rule-text .tag.warn{background:rgba(255,184,77,.1);color:var(--warn)}
+  .rule-text .tag.info{background:rgba(53,240,201,.08);color:var(--accent)}
+  .footer-note{font-size:12px;color:var(--muted-2);line-height:1.6;padding-top:16px;border-top:1px solid var(--line);margin-top:8px}
+  .action-bar{display:flex;gap:12px;margin-top:8px}
+  button.primary{padding:15px 28px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.ghost{padding:15px 28px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Rules</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="index.html" class="nav-pill">Auth</a>
+        <a href="dashboard.html" class="nav-pill">Dashboard</a>
+        <a href="scan.html" class="nav-pill">Scanner</a>
+        <a href="config.html" class="nav-pill">Config</a>
+        <a href="guide.html" class="nav-pill">Guide</a>
+        <a href="rules.html" class="nav-pill active">Rules</a>
+      </div>
+
+      <div class="eyebrow">Terms of Use</div>
+      <h1>Rules of Use</h1>
+      <p class="sub">By accessing the 3x Forensics platform, you agree to abide by the following terms. Violations result in immediate account suspension and ban.</p>
+
+      <div class="section">
+        <div class="section-title"><span class="num">1</span> Account & Authentication</div>
+        <ul class="rule-list">
+          <li class="rule-item">
+            <div class="rule-icon">🔐</div>
+            <div class="rule-text">
+              <strong>Discord Authentication Required</strong>
+              <p>All users must authenticate via Discord OAuth2. Access is gated by Customer role membership in the controller guild. No exceptions.</p>
+              <span class="tag info">Required</span>
+            </div>
+          </li>
+          <li class="rule-item">
+            <div class="rule-icon">🚫</div>
+            <div class="rule-text">
+              <strong>No Account Sharing</strong>
+              <p>Your Discord account is tied to your 3x session. Sharing credentials, tokens, or session data with others is prohibited and results in permanent ban.</p>
+              <span class="tag">Instant Ban</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="num">2</span> Scan Conduct</div>
+        <ul class="rule-list">
+          <li class="rule-item">
+            <div class="rule-icon">🖥️</div>
+            <div class="rule-text">
+              <strong>No Self-Scanning</strong>
+              <p>Customers are strictly prohibited from scanning their own machine or account. The 3x Agent collects Discord tokens, HWID, and user ID data. Self-scanning is detected and results in immediate account termination.</p>
+              <span class="tag">Instant Ban</span>
+            </div>
+          </li>
+          <li class="rule-item">
+            <div class="rule-icon">⏱️</div>
+            <div class="rule-text">
+              <strong>24-Hour Cooldown — Maximum 2 Scans</strong>
+              <p>Each customer is limited to 2 scans per 24-hour period. Attempting to exceed this limit will trigger an automatic ban. The cooldown is enforced server-side and cannot be bypassed.</p>
+              <span class="tag warn">2 Scans / 24h</span>
+            </div>
+          </li>
+          <li class="rule-item">
+            <div class="rule-icon">🎯</div>
+            <div class="rule-text">
+              <strong>Authorized Targets Only</strong>
+              <p>Scans may only be performed on targets you have explicit authorization to investigate. Unauthorized scanning of third parties is prohibited.</p>
+              <span class="tag warn">Violation = Ban</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="num">3</span> Data Collection</div>
+        <ul class="rule-list">
+          <li class="rule-item">
+            <div class="rule-icon">📊</div>
+            <div class="rule-text">
+              <strong>Forensic Data Logging</strong>
+              <p>All scan sessions log: Discord user ID, Discord token (truncated), HWID, scan results, risk score, and timestamp. This data is stored securely and accessible only to the platform owner.</p>
+              <span class="tag info">Logged</span>
+            </div>
+          </li>
+          <li class="rule-item">
+            <div class="rule-icon">🔒</div>
+            <div class="rule-text">
+              <strong>Data Retention</strong>
+              <p>Scan logs are retained indefinitely for security and audit purposes. Customers may request log review through the owner. No data is sold or shared with third parties.</p>
+              <span class="tag info">Indefinite</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="num">4</span> Enforcement</div>
+        <ul class="rule-list">
+          <li class="rule-item">
+            <div class="rule-icon">⚡</div>
+            <div class="rule-text">
+              <strong>Automatic Enforcement</strong>
+              <p>The system automatically detects and enforces: self-scan attempts, cooldown violations, role removal, and suspicious activity patterns. Bans are applied instantly without warning.</p>
+              <span class="tag">Auto-Ban</span>
+            </div>
+          </li>
+          <li class="rule-item">
+            <div class="rule-icon">🛡️</div>
+            <div class="rule-text">
+              <strong>Appeals</strong>
+              <p>Ban appeals may be submitted to the platform owner via Discord. Appeals are reviewed on a case-by-case basis. False positives are rare but possible.</p>
+              <span class="tag info">Owner Review</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-note">
+        <strong style="color:var(--text)">Last Updated:</strong> July 27, 2026<br>
+        These rules are subject to change without notice. Continued use of the platform constitutes acceptance of the current terms. For questions, contact the platform owner via Discord.
+      </div>
+
+      <div class="action-bar">
+        <button class="primary" onclick="location.href='guide.html'">Read Site Guide</button>
+        <button class="ghost" onclick="location.href='index.html'">Back to Auth</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

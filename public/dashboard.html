@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3x — Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg:#08090c;--panel:#0f1218;--panel-2:#131720;--line:#1e232d;--text:#e8ebf1;--muted:#6b7480;--muted-2:#454c58;--accent:#35f0c9;--accent-dim:#1a4c42;--danger:#ff5266;--danger-dim:#4a1a22;--warn:#ffb84d;--info:#5b8cff;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body{background-image:radial-gradient(circle at 15% 20%,rgba(53,240,201,.05),transparent 40%),radial-gradient(circle at 85% 80%,rgba(53,240,201,.04),transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px;background-position:center}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 78%);pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .stage{width:100%;max-width:1100px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 100px -30px rgba(0,0,0,.7);display:grid;grid-template-columns:1fr 320px}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}.sidebar{order:2;border-left:none;border-top:1px solid var(--line)}}
+  .main{padding:40px 44px;display:flex;flex-direction:column;gap:22px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0d8f78);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(53,240,201,.35)}
+  .brand-mark svg{width:15px;height:15px}
+  .brand-name{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .brand-name b{color:var(--text);font-weight:600}
+  .nav-pills{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .nav-pill{font-family:var(--font-mono);font-size:11px;padding:6px 14px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:all .15s ease;text-decoration:none}
+  .nav-pill:hover{border-color:var(--muted-2);color:var(--text)}
+  .nav-pill.active{background:rgba(53,240,201,.08);border-color:var(--accent-dim);color:var(--accent)}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-family:var(--font-display);font-size:26px;font-weight:600;line-height:1.25;margin-top:6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:420px}
+  .card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:560px){.card-grid{grid-template-columns:1fr}}
+  .card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:20px 22px;cursor:pointer;transition:border-color .15s ease,transform .12s ease,box-shadow .15s ease;position:relative;overflow:hidden}
+  .card:hover{border-color:var(--muted-2);transform:translateY(-2px);box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
+  .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:background .2s ease}
+  .card:hover::before{background:var(--accent)}
+  .card.danger:hover::before{background:var(--danger)}.card.warn:hover::before{background:var(--warn)}
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .card-icon{width:36px;height:36px;border-radius:9px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+  .card-icon svg{width:18px;height:18px}
+  .card-status{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:4px 8px;border-radius:5px;background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+  .card-status.ready{color:var(--accent);border-color:var(--accent-dim);background:rgba(53,240,201,.06)}
+  .card-status.warn{color:var(--warn);border-color:rgba(255,184,77,.2);background:rgba(255,184,77,.06)}
+  .card-status.danger{color:var(--danger);border-color:rgba(255,82,102,.2);background:rgba(255,82,102,.06)}
+  .card-title{font-family:var(--font-display);font-size:15px;font-weight:600;margin-bottom:4px}
+  .card-desc{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .action-bar{display:flex;gap:12px;margin-top:8px}
+  button.primary{flex:1;padding:15px 20px;background:var(--accent);color:#04140f;border:none;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  button.primary:hover{box-shadow:0 10px 30px -10px rgba(53,240,201,.5);transform:translateY(-1px)}
+  button.ghost{padding:15px 20px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+  button.ghost:hover{border-color:var(--muted-2);color:var(--text)}
+  .sidebar{background:#0a0c11;border-left:1px solid var(--line);padding:32px 28px;display:flex;flex-direction:column;gap:22px}
+  .side-title{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)}
+  .session-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-family:var(--font-mono);font-size:11.5px}
+  .session-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
+  .session-row span:last-child{color:var(--text)}
+  .session-row+.session-row{border-top:1px dashed var(--line)}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stat-row:last-child{border-bottom:none}
+  .stat-label{font-size:13px;color:var(--muted)}
+  .stat-value{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text)}
+  .stat-value.accent{color:var(--accent)}.stat-value.danger{color:var(--danger)}.stat-value.warn{color:var(--warn)}
+  .log-mini{flex:1;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  .log-mini .line{font-family:var(--font-mono);font-size:11px;color:var(--muted-2);display:flex;gap:8px;opacity:0;animation:appear .3s ease forwards}
+  .log-mini .line .tag{color:var(--muted);flex-shrink:0}
+  .log-mini .line.ok .tag{color:var(--accent)}.log-mini .line.warn .tag{color:var(--warn)}.log-mini .line.err .tag{color:var(--danger)}
+  @keyframes appear{to{opacity:1}}
+  .footer-note{font-size:11px;color:var(--muted-2);line-height:1.5}
+  .pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s ease infinite;margin-right:8px}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+  .agent-box{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-top:6px}
+  .agent-box-title{font-size:13px;font-weight:600;margin-bottom:6px}
+  .agent-box-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+  .agent-btn{font-family:var(--font-mono);font-size:11px;padding:8px 14px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--accent);cursor:pointer;transition:all .15s ease}
+  .agent-btn:hover{background:rgba(53,240,201,.08)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage">
+
+    <div class="main">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#04140f" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name"><b>3x</b> Forensics</div>
+      </div>
+
+      <div class="nav-pills">
+        <a href="dashboard.html" class="nav-pill active">Dashboard</a>
+        <a href="scan.html" class="nav-pill">Scanner</a>
+        <a href="history.html" class="nav-pill">History</a>
+        <a href="config.html" class="nav-pill">Config</a>
+        <a href="index.html" class="nav-pill" onclick="localStorage.clear()">Logout</a>
+      </div>
+
+      <div class="eyebrow"><span class="pulse"></span>System Online</div>
+      <h1>Detection modules</h1>
+      <p class="sub">Select individual modules or run a full system sweep. Download the desktop agent for real forensic collection.</p>
+
+      <div class="agent-box">
+        <div class="agent-box-title">💻 Desktop Agent Required</div>
+        <div class="agent-box-desc">The web dashboard controls scans, but the 3x Agent runs on the target machine to collect real forensic data (processes, registry, DNS cache, USN journal, ETW providers).</div>
+        <button class="agent-btn" onclick="downloadAgent()">Download 3x-Agent.ps1</button>
+        <span style="font-size:11px;color:var(--muted);margin-left:10px">PowerShell · Windows 10/11</span>
+      </div>
+
+      <div class="card-grid">
+        <div class="card" onclick="location.href='scan.html?m=process'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">Process Scan</div>
+          <div class="card-desc">Enumerate running processes, compare hashes against known cheat signatures and parent-chain anomalies.</div>
+        </div>
+
+        <div class="card" onclick="location.href='scan.html?m=file'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">File System Trace</div>
+          <div class="card-desc">Detect deletion artifacts, staggered deletes, timestamp anomalies, prefetch gaps, and hidden payloads.</div>
+        </div>
+
+        <div class="card" onclick="location.href='scan.html?m=registry'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m4.2-13.2l-4.2 4.2m-4.2 4.2l4.2 4.2M23 12h-6m-6 0H1m16.2 4.2l-4.2-4.2m-4.2-4.2l4.2-4.2"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">Registry Audit</div>
+          <div class="card-desc">Scan HKLM/HKCU for persistence entries, spoofed keys, CLSID mismatches, and known cheat registry artifacts.</div>
+        </div>
+
+        <div class="card" onclick="location.href='scan.html?m=network'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">Network / DNS</div>
+          <div class="card-desc">Inspect DNS cache, active connections, known C2 indicators, and anomalous TLS fingerprints.</div>
+        </div>
+
+        <div class="card danger" onclick="location.href='scan.html?m=discord'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">Discord Intel</div>
+          <div class="card-desc">Cross-reference user roles against known cheat servers. Detects "cheats" role membership and suspicious guilds.</div>
+        </div>
+
+        <div class="card warn" onclick="location.href='scan.html?m=memory'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">Memory Traces</div>
+          <div class="card-desc">Inspect LSASS handles, injected modules, hollowed processes, and anomalous memory permissions.</div>
+        </div>
+
+        <div class="card" onclick="location.href='scan.html?m=etw'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">ETW / WMI Audit</div>
+          <div class="card-desc">Detect selective ETW provider tampering, WMI repository inconsistencies, and event subscription gaps.</div>
+        </div>
+
+        <div class="card" onclick="location.href='scan.html?m=explorer'">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <span class="card-status ready">Ready</span>
+          </div>
+          <div class="card-title">Explorer / LSASS</div>
+          <div class="card-desc">Analyze explorer.exe and lsass.exe forensic traces, handle tables, and DPS/PCA service artifacts.</div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="primary" onclick="location.href='scan.html?m=full'">Run Full Sweep</button>
+        <button class="ghost" onclick="location.href='report.html'">Last Report</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="side-title">Active Session</div>
+      <div class="session-card">
+        <div class="session-row"><span>ID</span><span id="sessId">—</span></div>
+        <div class="session-row"><span>User</span><span id="userName">—</span></div>
+        <div class="session-row"><span>Guild</span><span>1515906...</span></div>
+        <div class="session-row"><span>Role</span><span style="color:var(--accent)">Customer</span></div>
+      </div>
+
+      <div class="side-title">System Stats</div>
+      <div class="stat-row">
+        <span class="stat-label">Modules</span>
+        <span class="stat-value">8</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Last Scan</span>
+        <span class="stat-value accent" id="lastScan">Never</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Detections</span>
+        <span class="stat-value" id="totalDetections">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Risk Score</span>
+        <span class="stat-value accent" id="riskScore">0 / 100</span>
+      </div>
+
+      <div class="side-title">Recent Activity</div>
+      <div class="log-mini" id="logMini">
+        <div class="line ok" style="animation-delay:0s"><span class="tag">OK</span> Session authenticated</div>
+        <div class="line" style="animation-delay:.15s"><span class="tag">--</span> Dashboard loaded</div>
+        <div class="line" style="animation-delay:.3s"><span class="tag">--</span> Awaiting scan trigger</div>
+      </div>
+
+      <div class="footer-note">
+        3x v2.4.0 — NAPSE + Ocean behavior-based detection engine. Desktop agent required for live scans.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('3x_token');
+  if (!token) location.href = 'index.html';
+
+  async function loadUser() {
+    try {
+      const res = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!res.ok) { localStorage.clear(); location.href = 'index.html'; return; }
+      const data = await res.json();
+      document.getElementById('userName').textContent = data.username || 'LO#0001';
+      document.getElementById('sessId').textContent = '3X-' + Math.random().toString(16).slice(2,8).toUpperCase();
+    } catch {
+      localStorage.clear(); location.href = 'index.html';
+    }
+  }
+
+  async function loadHistory() {
+    try {
+      const res = await fetch('/api/scan/history', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!res.ok) return;
+      const scans = await res.json();
+      if (scans.length > 0) {
+        const last = scans[0];
+        document.getElementById('lastScan').textContent = new Date(last.created_at).toLocaleString();
+        document.getElementById('totalDetections').textContent = scans.reduce((a,s) => a + (JSON.parse(s.findings || '[]').length), 0);
+        document.getElementById('riskScore').textContent = (last.risk_score || 0) + ' / 100';
+      }
+    } catch {}
+  }
+
+  function downloadAgent() {
+    const a = document.createElement('a');
+    a.href = '/3x-agent.ps1';
+    a.download = '3x-agent.ps1';
+    a.click();
+  }
+
+  loadUser();
+  loadHistory();
+</script>
+</body>
+</html>
